@@ -1,0 +1,2 @@
+2019/04/19 11:07:31 [error] 13345#0: *58 upstream timed out (110: Connection timed out) while reading response header from upstream, client: 113.54.197.232, server: www.zhouzhihui.cn, request: "GET / HTTP/1.1", upstream: "uwsgi://127.0.0.1:8000", host: "www.zhouzhihui.cn"
+2019/04/19 11:07:49 [error] 13408#0: *2 upstream timed out (110: Connection timed out) while reading response header from upstream, client: 113.54.197.232, server: www.zhouzhihui.cn, request: "GET / HTTP/1.1", upstream: "uwsgi://127.0.0.1:8000", host: "www.zhouzhihui.cn"
