@@ -15,7 +15,7 @@ class shop(models.Model):
     shop_phone = models.CharField(max_length=11,verbose_name="联系方式")
     shop_extra = models.TextField(verbose_name="店铺信息")
     shop_updateTime = models.DateTimeField(auto_now=True,verbose_name="更新时间")
-    shop_user = models.OneToOneField(User,null=True, blank=True,verbose_name="所属用户")
+    user = models.OneToOneField(User,null=True, blank=True,verbose_name="所属用户")
 
 
     class Meta:
@@ -46,7 +46,7 @@ class goods(models.Model):
     goods_dateadded = models.DateTimeField(auto_now_add=True, verbose_name="上架日期")
     goods_post = models.BooleanField( verbose_name="是否承担运费")
     goods_stock = models.IntegerField(default=0, verbose_name="总库存")
-    goods_shop = models.ForeignKey(shop,null=True, blank=True,verbose_name="所属店铺")
+    shop = models.ForeignKey(shop,null=True, blank=True,verbose_name="所属店铺")
 
 
     class Meta:

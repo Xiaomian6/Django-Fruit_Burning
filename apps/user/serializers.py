@@ -48,3 +48,12 @@ class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("username", "user_avator","is_superuser")
+
+
+
+class UserListSerializer(serializers.ModelSerializer):
+
+    #role = RoleSerializer()#假如想看User的role的信息既可以这样写
+    class Meta:
+        model = User
+        fields = '__all__'

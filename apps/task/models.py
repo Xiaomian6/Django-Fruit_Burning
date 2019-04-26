@@ -16,7 +16,7 @@ class task(models.Model):
     )
     task_id = models.AutoField(primary_key=True)
     task_title = models.CharField(max_length=30,verbose_name="任务标题")
-    task_desc = UEditorField(verbose_name="任务详情", imagePath="task/images/", width=1000, height=300,
+    task_desc = UEditorField(verbose_name="任务描述", imagePath="task/images/", width=1000, height=300,
                               filePath="task/files/", default='')
     task_price = models.FloatField(default=0.0,verbose_name="任务价格")
     task_status = models.CharField(max_length=10,choices=STATUS_CHOICES,verbose_name="任务状态")
@@ -29,7 +29,7 @@ class task(models.Model):
     task_receiveTime = models.DateTimeField(default = timezone.now,verbose_name="任务领取时间")
     task_deadline = models.DateTimeField(default = timezone.now, verbose_name="任务截止时间")
     task_extra = models.TextField(verbose_name="任务备注")
-    task_role = models.ManyToManyField(role, verbose_name="任务角色", blank=True)
+    role = models.ManyToManyField(role, verbose_name="任务角色", blank=True)
 
 
     class Meta:

@@ -29,7 +29,7 @@ class  LoginView(APIView):
         user_name = request.data.get("username")
         pass_word = request.data.get("password")
         try:
-            user_info = User.objects.get(username=user_name)
+            user_info = User.objects.get(username=user_name,is_staff = True)
             if user_info.check_password(pass_word):
                 if user_info is not None:
                     if user_info.is_active:
@@ -81,10 +81,13 @@ def UserInfoView(request):
         except Exception as e:
             pass
         if user_info is not None:
-            serializer = UserDetailSerializer(user_info, context={"request":request,"role":"admin"})
+            serializer = UserDetailSerializer(user_info, context={"request":request})
+            user_data = serializer.data
+            user_data['roles'] = 'admin'
+            print(user_data)
             data = {
 
-                "data": serializer.data,
+                "data": user_data,
                 "code": 20000,
             }
             return JsonResponse(data)
@@ -148,6 +151,19 @@ class UserListViewSet(mixins.ListModelMixin,viewsets.GenericViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_fields = ('user_name','user_phone')
 
+from .serializers import UserListSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+class UserListView(APIView):
+    def get(self, request, format=None):
+        user = User.objects.all()[:10]
+        user_serializer = UserListSerializer(user, many=True, context={"request":request})
+        data = {
+            "code": 20000,
+            "data": user_serializer.data
+        }
+        return Response(data)
 
 
 
@@ -161,25 +177,15 @@ def app_login(request):
             password = req['password']
             print("request.body={}".format(request.body))
             try:
-                user_info = User.objects.get(Q(user_name=username) | Q(user_phone=username))
+                user_info = User.objects.get(Q(user_name=username,is_staff = False) | Q(user_phone=username,is_staff = False))
                 if user_info.check_password(password):
                     if user_info is not None:
                         if user_info.is_active:
                             auth.login(request, user_info)
-                            data = {
-                                "code": '200',
-                            }
-                            # json = simplejson.dumps(dict, ensure_ascii=False)
-                            return JsonResponse(data)
-                data = {
-                    "code": '201',#密码错误
-                }
-                return JsonResponse(data)
+                            return HttpResponse('200')
+                return HttpResponse('201')
             except Exception as e:
-                data = {
-                    "code": '202',#账号不存在
-                }
-                return JsonResponse(data)
+                return HttpResponse('202')
     except Exception as info:
         print(info)
     if request.method == 'GET':
@@ -188,50 +194,37 @@ def app_login(request):
 
 @csrf_exempt
 def app_register(request):
-    dict = {}
-    try:
-        if request.method == 'POST':
-            req = simplejson.loads(request.body)
-            username = req['username']
-            password = req['password']
-            user_phone = req['phone']
-            email = req['email']
-            print(username,password,user_phone,email)
-            if not all([username, email, user_phone,password]):
-                data = {
-                    "status": '数据不完整'
-                }
-                return JsonResponse(data)
-            if not re.match(r'^[a-z0-9][\w.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$', email):
-                data = {
-                    "status": '邮箱格式不正确'
-                }
-                return JsonResponse(data)
-            try:
-                print('user')
-                user = User.objects.get(user_name=username)
-                print('user1')
-            except User.DoesNotExist:
-                user = None
-            if user:
-                data = {
-                    "status": '用户名已存在'
-                }
-                return JsonResponse(data)
-            # 进行业务处理：进行用户注册@csrf_exempt
-            user = User.objects.create_user(username = username,user_name=username,user_email=email,user_phone=user_phone, password=password)
-            user.is_active = 1
-            print('123')
-            user.save()
-            print("request.body={}".format(request.body))
+
+    if request.method=='GET':
+        return render(request,'post.html')
+    else:
+        req = json.loads(request.body)
+
+        username = req['username']
+        password = req['password']
+        user_phone = req['phone']
+        print(username, password, user_phone)
+        if not all([username, user_phone, password]):
             data = {
-                "status": '200'
+                "status": '数据不完整'
             }
-            return JsonResponse(data)
-    except Exception as info:
+            return JsonResponse(data, json_dumps_params={'ensure_ascii':False})
+        try:
+            user = User.objects.get(Q(user_name=username) | Q(user_phone=user_phone))
+        except User.DoesNotExist:
+            user = None
+        if user:
+            data = {
+                "status": '用户名已存在,或者手机号已存在'
+            }
+            return JsonResponse(data, json_dumps_params={'ensure_ascii':False})
+        # 进行业务处理：进行用户注册@csrf_exempt
+        user = User.objects.create_user(username=username, user_name=username, user_phone=user_phone, password=password)
+        user.is_active = 1
+        print('123')
+        user.save()
+        print("request.body={}".format(request.body))
         data = {
-            "status": 'chucuo'
+            "status": '200'
         }
-        return JsonResponse(data)
-    if request.method == 'GET':
-        return HttpResponse('这是注册页面')
+        return JsonResponse(data, json_dumps_params={'ensure_ascii':False})

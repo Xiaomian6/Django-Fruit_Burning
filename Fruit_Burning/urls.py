@@ -22,7 +22,8 @@ from django.views.static import serve
 from user.views import UserViewset,UserListViewSet
 
 from rest_framework_jwt.views import obtain_jwt_token
-from user.views import LoginView,UserInfoView,app_login,app_register
+from user.views import LoginView,UserInfoView,app_login,app_register,UserListView
+from goods.views import GoodsListView
 from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 
@@ -39,6 +40,8 @@ urlpatterns = [
     #jwt的认证接口
     url(r'^user/login/$', LoginView.as_view(), name='login'),  # 用户的登陆url
     url(r'^user/info/', UserInfoView, name='user-info'),  # 用户的信息url
+    url(r'^user/list/$',  UserListView.as_view(), name='user_list'),
+    url(r'^goods/list/$', GoodsListView.as_view(), name='goods_list'),
     url(r'^', include(router.urls)),
 
     url(r'^media/(?P<path>.*)$', serve, {"document_root": MEDIA_ROOT}),#文件上传
